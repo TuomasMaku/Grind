@@ -71,7 +71,7 @@
         <div class="home-card-val" id="homeDailyPct">0%</div>
         <div class="home-card-sub">Aujourd'hui</div>
       </div>
-      <div class="home-card" onclick="switchTab('body')">
+      <div class="home-card" onclick="switchTab('body');onBodyTab()">
         <div class="home-card-label">⚖️ Poids</div>
         <div class="home-card-val" id="homeBodyKg">—</div>
         <div class="home-card-sub">Actuel</div>
@@ -84,7 +84,7 @@
         <div class="home-card-val" id="homeRunKm">0 km</div>
         <div class="home-card-sub" id="homeRunSub">Ce mois</div>
       </div>
-      <div class="home-card" onclick="switchTab('coach')">
+      <div class="home-card" onclick="switchTab('coach');onCoachTab()">
         <div class="home-card-label">🤖 Coach IA</div>
         <div class="home-card-val" style="font-size:22px;padding-top:4px">Ask</div>
         <div class="home-card-sub">Analyse perso</div>
@@ -567,9 +567,9 @@
   <button class="nav-btn"        id="btn-programme" onclick="switchTab('programme')"><span class="nav-icon">📋</span>Prog</button>
   <button class="nav-btn"        id="btn-run"       onclick="switchTab('run')">      <span class="nav-icon">🏃</span>Run</button>
   <button class="nav-btn"        id="btn-defi"      onclick="switchTab('defi')">     <span class="nav-icon">🔥</span>Défi</button>
-  <button class="nav-btn"        id="btn-body"      onclick="switchTab('body')">     <span class="nav-icon">⚖️</span>Body</button>
+  <button class="nav-btn"        id="btn-body"      onclick="switchTab('body');onBodyTab()">     <span class="nav-icon">⚖️</span>Body</button>
   <button class="nav-btn"        id="btn-stats"     onclick="switchTab('stats')">    <span class="nav-icon">📊</span>Stats</button>
-  <button class="nav-btn"        id="btn-coach"     onclick="switchTab('coach')">    <span class="nav-icon">🤖</span>Coach</button>
+  <button class="nav-btn"        id="btn-coach"     onclick="switchTab('coach');onCoachTab()">    <span class="nav-icon">🤖</span>Coach</button>
 </nav>
 
 <!-- ══ LEVEL UP ══ -->
