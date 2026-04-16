@@ -3,7 +3,19 @@
    Achievements · 1RM · Body Weight · Goals · Protéines · RPE · Coach IA
    ════════════════════════════════════════════════════════════════ */
 
-/* ── ÉTAT EXTRAS ── */
+/* ── COMPAT: variables absentes si app.js v1 ── */
+if (typeof prChargesData === 'undefined') window.prChargesData = {};
+if (typeof runHistory    === 'undefined') window.runHistory    = [];
+if (typeof chargesData   === 'undefined') window.chargesData   = {};
+if (typeof historyData   === 'undefined') window.historyData   = [];
+if (typeof streakData    === 'undefined') window.streakData    = {count:0, best:0};
+if (typeof progState     === 'undefined') window.progState     = {};
+if (typeof cycleStart    === 'undefined') window.cycleStart    = null;
+if (typeof days          === 'undefined') window.days          = [];
+if (typeof getRank       === 'undefined') window.getRank       = (s) => ({name:'Rookie', color:'#c9ff00'});
+if (typeof getCurDayIdx  === 'undefined') window.getCurDayIdx  = () => -1;
+if (typeof isCurrentWorkoutDone === 'undefined') window.isCurrentWorkoutDone = () => false;
+
 let achievements    = store.get('achievements',    {});
 let bodyLog         = store.get('bodyLog',         []);
 let goals           = store.get('goals',           []);
