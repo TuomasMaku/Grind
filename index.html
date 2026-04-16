@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#040404">
+<link rel="manifest" href="manifest.json">
+<title>ARENA · Training</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto+Condensed:wght@300;400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ══ HOME ══ -->
+<div class="tab-content active" id="tab-home">
+  <div class="page">
+    <div class="home-greeting">ARENA · Training</div>
+    <div class="home-title" id="homeTitle">Prêt à<span style="color:var(--accent)">Bosser ?</span></div>
+    <div class="home-date" id="homeDate"></div>
+
+    <div class="smart-rest-card" id="smartRestCard" style="display:none">
+      <div class="sr-left">
+        <div class="sr-label">⏰ Séance d'hier — t'as fait ?</div>
+        <div class="sr-day-info" id="srDayInfo"></div>
+      </div>
+      <div class="sr-actions">
+        <button class="sr-btn sr-yes" onclick="confirmDay('done')">✓ Faite</button>
+        <button class="sr-btn sr-no" onclick="confirmDay('skipped')">✗ Skip</button>
+      </div>
+    </div>
+
+    <div class="moti-card">
+      <div class="moti-text" id="motiText">Discipline > motivation</div>
+    </div>
+
+    <!-- STATUS CARD — rank + streak + hardcore fusionnés -->
+    <div class="rank-card">
+      <div class="rank-badge" id="rankBadge">🌱</div>
+      <div class="rank-info">
+        <div class="rank-label">Rang · Streak</div>
+        <div class="rank-name" id="rankName">Rookie</div>
+        <div class="rank-next" id="rankNext"></div>
+        <div class="rank-bar-wrap"><div class="rank-bar" id="rankBar" style="width:0%"></div></div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div class="streak-num" id="streakNum" style="font-size:52px;line-height:1">0</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:3px;color:var(--muted)">JOURS</div>
+        <div id="streakFire" style="font-size:20px;margin-top:4px">🌱</div>
+      </div>
+    </div>
+
+    <div class="hardcore-card">
+      <div class="hardcore-left">
+        <div class="hardcore-label">☠️ Mode Hardcore</div>
+        <div class="hardcore-sub" id="hardcoreSub">Skip = streak reset. Zéro pitié.</div>
+      </div>
+      <div class="toggle-wrap">
+        <div class="toggle" id="hardcoreToggle" onclick="toggleHardcore()"></div>
+      </div>
+    </div>
+
+    <!-- GRILLE METRICS 3 colonnes -->
+    <div class="home-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:2px">
+      <div class="home-card" onclick="switchTab('programme')">
+        <div class="home-card-label">Cycle</div>
+        <div class="home-card-val" id="homeCyclePct">0%</div>
+        <div class="home-card-sub" id="homeCycleSub">Exos</div>
+      </div>
+      <div class="home-card" onclick="switchTab('defi')">
+        <div class="home-card-label">Daily</div>
+        <div class="home-card-val" id="homeDailyPct">0%</div>
+        <div class="home-card-sub">Aujourd'hui</div>
+      </div>
+      <div class="home-card" onclick="switchTab('body')">
+        <div class="home-card-label">⚖️ Poids</div>
+        <div class="home-card-val" id="homeBodyKg">—</div>
+        <div class="home-card-sub">Actuel</div>
+      </div>
+    </div>
+
+    <div class="home-grid" style="grid-template-columns:1fr 1fr;margin-bottom:2px">
+      <div class="home-card" onclick="switchTab('run')">
+        <div class="home-card-label">🏃 Run</div>
+        <div class="home-card-val" id="homeRunKm">0 km</div>
+        <div class="home-card-sub" id="homeRunSub">Ce mois</div>
+      </div>
+      <div class="home-card" onclick="switchTab('coach')">
+        <div class="home-card-label">🤖 Coach IA</div>
+        <div class="home-card-val" style="font-size:22px;padding-top:4px">Ask</div>
+        <div class="home-card-sub">Analyse perso</div>
+      </div>
+    </div>
+
+    <!-- PROTEIN TRACKER -->
+    <div class="prot-card" id="proteinTracker"></div>
+
+    <!-- RPE du jour -->
+    <div class="home-rpe">
+      <div id="homeRpeToday" style="display:none"></div>
+    </div>
+
+    <div class="cycle-card">
+      <div class="cycle-top">
+        <span class="cycle-title">Cycle 8 jours</span>
+        <span class="cycle-pct" id="cyclePctLabel">Non démarré</span>
+      </div>
+      <div class="cycle-dots" id="cycleDots"></div>
+    </div>
+
+    <div class="next-card" id="nextCard" onclick="switchTab('programme')">
+      <div class="next-label">↗ Séance du jour</div>
+      <div class="next-title" id="nextTitle">—</div>
+      <div class="next-meta" id="nextMeta"></div>
+    </div>
+
+    <div class="daily-card" onclick="switchTab('defi')">
+      <div class="daily-top">
+        <span class="daily-label">🔥 Défi du jour</span>
+        <span id="perfectBadge" class="perfect-badge progress">🟠 En cours</span>
+      </div>
+      <div class="daily-bar-wrap"><div class="daily-bar" id="homeDailyBar"></div></div>
+      <div class="daily-sub">100 pompes · 100 squats · 60 fentes · 60 abdos · 3min gainage</div>
+    </div>
+
+    <div class="discipline-card" onclick="switchTab('stats')">
+      <div class="disc-left">
+        <div class="disc-label">Score discipline</div>
+        <div class="disc-bar-wrap"><div class="disc-bar" id="discBar"></div></div>
+      </div>
+      <div class="disc-score" id="discScore">—</div>
+    </div>
+
+    <button class="start-cycle-btn" id="startCycleBtn">⟳ Démarrer un nouveau cycle</button>
+    <button class="skip-btn" id="skipBtn" style="display:none">⏭ Passer à la prochaine séance</button>
+    <button class="reset-btn" id="resetAll" style="margin-top:3px;border-color:#ff2200;color:#ff2200">✕ Tout remettre à zéro</button>
+  </div>
+</div>
+
+<!-- ══ PROGRAMME ══ -->
+<div class="tab-content" id="tab-programme">
+  <div class="page">
+    <header style="margin-bottom:20px">
+      <div class="header-label">Cycle d'entraînement</div>
+      <h1>Programme<span>8 Jours</span></h1>
+      <div class="header-sub">PPL · Cardio · Endurance</div>
+    </header>
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-num">8</div><div class="stat-label">Jours</div></div>
+      <div class="stat"><div class="stat-num">7</div><div class="stat-label">Séances</div></div>
+      <div class="stat"><div class="stat-num">1</div><div class="stat-label">Repos</div></div>
+      <div class="stat"><div class="stat-num">~6H</div><div class="stat-label">Volume</div></div>
+    </div>
+    <div class="days-grid" id="daysGrid"></div>
+    <button class="reset-btn" id="resetProg">↺ Nouveau cycle — Réinitialiser</button>
+    <div class="bottom-note"><p><strong>Tips :</strong> Vélo = récupération active Z2. Hydratation 2–3L sur legs + run long. <strong>Jour 8 = sacré.</strong></p></div>
+  </div>
+</div>
+
+<!-- ══ RUN ══ -->
+<div class="tab-content" id="tab-run">
+  <div class="page">
+    <header style="margin-bottom:20px">
+      <div class="header-label">Suivi running</div>
+      <h1>Run<span>Tracker</span></h1>
+      <div class="header-sub">Log · Stats · Records</div>
+    </header>
+    <div class="run-cycle-link" id="runCycleLink" style="display:none">
+      <div class="rcl-icon">🔗</div>
+      <div class="rcl-body"><div class="rcl-label">Séance du cycle</div><div class="rcl-text" id="runCycleLinkText"></div></div>
+    </div>
+    <div class="run-streak-card">
+      <div class="run-streak-num" id="runStreakNum">0</div>
+      <div class="run-streak-info">
+        <div class="run-streak-label">Runs cette semaine</div>
+        <div class="run-streak-sub" id="runStreakSub">Objectif : régularité</div>
+      </div>
+    </div>
+    <div class="run-form">
+      <div class="run-form-title">Logger un run</div>
+      <div class="run-form-row">
+        <div class="run-input-group">
+          <div class="run-input-label">Distance</div>
+          <div class="run-input-unit-wrap">
+            <input type="number" id="runDist" class="run-input" placeholder="5.0" min="0" step="0.1" inputmode="decimal">
+            <span class="run-input-unit">km</span>
+          </div>
+        </div>
+        <div class="run-input-group">
+          <div class="run-input-label">Min</div>
+          <div class="run-input-unit-wrap">
+            <input type="number" id="runMin" class="run-input" placeholder="30" min="0" step="1" inputmode="numeric">
+            <span class="run-input-unit">m</span>
+          </div>
+        </div>
+        <div class="run-input-group">
+          <div class="run-input-label">Sec</div>
+          <div class="run-input-unit-wrap">
+            <input type="number" id="runSec" class="run-input" placeholder="0" min="0" max="59" step="1" inputmode="numeric">
+            <span class="run-input-unit">s</span>
+          </div>
+        </div>
+      </div>
+      <div class="run-pace-preview" id="runPacePreview">
+        <div class="rpp-label">Pace</div><div class="rpp-value" id="runPaceVal">—</div><div class="rpp-unit">/km</div>
+      </div>
+      <div class="run-form-row">
+        <div class="run-input-group">
+          <div class="run-input-label">Zone</div>
+          <select class="run-select" id="runZone">
+            <option value="z2">🟢 Z2 — Easy</option>
+            <option value="tempo">🟠 Tempo</option>
+            <option value="interval">🔴 Interval</option>
+            <option value="long">🔵 Long run</option>
+          </select>
+        </div>
+      </div>
+      <div class="run-input-group" style="margin-bottom:8px">
+        <div class="run-input-label">Note</div>
+        <textarea class="run-note-input" id="runNote" placeholder="Ressenti, météo, circuit..."></textarea>
+      </div>
+      <button class="run-save-btn" id="runSaveBtn">Logger le run 🏃</button>
+    </div>
+    <div class="section-title">Records personnels</div>
+    <div class="pr-board" id="prBoard"></div>
+    <div class="section-title">Stats globales</div>
+    <div class="big-stats">
+      <div class="big-stat"><div class="big-stat-val" id="runStatTotalKm" style="color:var(--run)">0</div><div class="big-stat-label">Km totaux</div></div>
+      <div class="big-stat"><div class="big-stat-val" id="runStatTotalRuns" style="color:var(--run)">0</div><div class="big-stat-label">Runs</div></div>
+    </div>
+    <div class="big-stats">
+      <div class="big-stat"><div class="big-stat-val" id="runStatAvgPace" style="color:var(--run)">—</div><div class="big-stat-label">Pace moyen</div></div>
+      <div class="big-stat"><div class="big-stat-val" id="runStatBestPace" style="color:var(--run)">—</div><div class="big-stat-label">Meilleur pace</div></div>
+    </div>
+    <div class="big-stats" style="margin-bottom:0">
+      <div class="big-stat"><div class="big-stat-val" id="runStatMonthKm" style="color:var(--run)">0</div><div class="big-stat-label">Km ce mois</div></div>
+      <div class="big-stat"><div class="big-stat-val" id="runStatWeekRuns" style="color:var(--run)">0</div><div class="big-stat-label">Runs / sem.</div></div>
+    </div>
+    <div class="section-title">Évolution pace</div>
+    <div class="run-spark-wrap">
+      <div class="run-spark-label">Pace /km — 20 derniers runs</div>
+      <svg class="run-spark-svg" id="runSparkSvg" viewBox="0 0 500 60" preserveAspectRatio="none"></svg>
+    </div>
+    <div class="section-title">Répartition zones</div>
+    <div class="zone-distrib" id="zoneDistrib"></div>
+    <div class="section-title">Historique</div>
+    <div id="runHistoryList"></div>
+    <button class="reset-btn" id="resetRuns" style="margin-top:20px;border-color:#ff2200;color:#ff2200">✕ Effacer tous les runs</button>
+  </div>
+</div>
+
+<!-- ══ DÉFI ══ -->
+<div class="tab-content" id="tab-defi">
+  <div class="page">
+    <header style="margin-bottom:20px">
+      <div class="header-label">Défi du jour</div>
+      <h1>Daily<span>Grind</span></h1>
+      <div class="header-sub">Fais-le quand tu veux — mais fais-le.</div>
+    </header>
+    <div class="progress-section">
+      <div class="global-ring-wrap">
+        <svg width="72" height="72" viewBox="0 0 72 72">
+          <circle class="g-ring-bg" cx="36" cy="36" r="30"/>
+          <circle class="g-ring-fill" id="ringFill" cx="36" cy="36" r="30"/>
+        </svg>
+        <div class="ring-text" id="ringPct">0%</div>
+      </div>
+      <div class="progress-info">
+        <div class="done-count"><span id="totalDone">0</span><span> / <span id="totalTarget">0</span></span></div>
+        <div class="done-label">reps complétées aujourd'hui</div>
+      </div>
+    </div>
+    <div class="challenges" id="challenges"></div>
+    <div class="timer-wrap">
+      <div class="timer-display" id="timerDisplay">00:00</div>
+      <div class="timer-btns">
+        <button class="timer-btn go" onclick="startTimer(45)">45s</button>
+        <button class="timer-btn go" onclick="startTimer(60)">1min</button>
+        <button class="timer-btn go" onclick="startTimer(90)">1m30</button>
+        <button class="timer-btn go" onclick="startTimer(120)">2min</button>
+        <button class="timer-btn stop" onclick="stopTimer()">Stop</button>
+      </div>
+    </div>
+    <button class="reset-btn" id="resetDefi">↺ Réinitialiser la journée</button>
+  </div>
+</div>
+
+<!-- ══ BODY — poids + objectifs + achievements ══ -->
+<div class="tab-content" id="tab-body">
+  <div class="page">
+    <header style="margin-bottom:20px">
+      <div class="header-label">Physique & Objectifs</div>
+      <h1>Body<span>Tracker</span></h1>
+      <div class="header-sub">Poids · Goals · Achievements</div>
+    </header>
+
+    <!-- Poids corporel -->
+    <div class="section-title">Poids corporel</div>
+    <div class="body-form">
+      <div class="body-form-title">Logger une mesure</div>
+      <div class="body-input-row">
+        <div class="body-input-group">
+          <div class="body-input-label">Poids</div>
+          <div class="body-input-wrap">
+            <input type="number" id="bodyKgInput" class="body-input" placeholder="78.5" min="30" step="0.1" inputmode="decimal">
+            <span class="body-input-unit">kg</span>
+          </div>
+        </div>
+        <div class="body-input-group">
+          <div class="body-input-label">Tour de taille</div>
+          <div class="body-input-wrap">
+            <input type="number" id="bodyWaistInput" class="body-input" placeholder="82" min="40" step="0.5" inputmode="decimal">
+            <span class="body-input-unit">cm</span>
+          </div>
+        </div>
+      </div>
+      <button class="body-save-btn" id="bodySaveBtn">Logger ✓</button>
+    </div>
+    <div class="body-spark-wrap">
+      <div class="body-spark-label">Évolution poids — 30 derniers jours</div>
+      <svg class="body-spark-svg" id="bodySpark" viewBox="0 0 500 80" preserveAspectRatio="none"></svg>
+    </div>
+    <div class="body-stats-row" id="bodyStats"></div>
+    <div class="body-hist-wrap"><div id="bodyHistory"></div></div>
+
+    <!-- Objectifs -->
+    <div class="section-title">Objectifs</div>
+    <div id="goalsContainer"></div>
+
+    <!-- Achievements -->
+    <div class="section-title">Achievements — <span id="achCount">0</span>/<span id="achTotal">0</span></div>
+    <div class="ach-grid" id="achievementsGrid"></div>
+  </div>
+</div>
+
+<!-- ══ STATS ══ -->
+<div class="tab-content" id="tab-stats">
+  <div class="page">
+    <header style="margin-bottom:20px">
+      <div class="header-label">Suivi long terme</div>
+      <h1>Stats &<span>Historique</span></h1>
+    </header>
+    <div class="section-title">Chiffres cumulés</div>
+    <div class="big-stats">
+      <div class="big-stat"><div class="big-stat-val" id="statDaysDone">0</div><div class="big-stat-label">Jours 100%</div></div>
+      <div class="big-stat"><div class="big-stat-val" id="statBestStreak">0</div><div class="big-stat-label">Meilleur streak</div></div>
+    </div>
+    <div class="big-stats" style="margin-bottom:0">
+      <div class="big-stat"><div class="big-stat-val" id="statTotalReps">0</div><div class="big-stat-label">Reps totales</div></div>
+      <div class="big-stat"><div class="big-stat-val" id="statDiscipline">—</div><div class="big-stat-label">Score discipline</div></div>
+    </div>
+    <div class="section-title">Progression charges</div>
+    <div id="chargesStats"></div>
+    <div class="section-title">Activité — 90 jours</div>
+    <div class="heatmap-wrap">
+      <div class="heatmap-scroll"><div class="heatmap-grid" id="heatmapGrid"></div></div>
+      <div class="heatmap-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Complet</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>Partiel</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--border)"></div>Rien</div>
+      </div>
+    </div>
+    <div class="section-title">Par exercice</div>
+    <div id="exTotals"></div>
+    <div class="section-title">Historique daily</div>
+    <div id="historyList"></div>
+    <div class="section-title">Sauvegarde</div>
+    <button class="reset-btn" onclick="exportData()" style="margin-bottom:3px;border-color:var(--pull);color:var(--pull)">📦 Sauvegarder mes données</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+    <button class="reset-btn" onclick="document.getElementById('importFile').click()" style="margin-bottom:3px;border-color:var(--green);color:var(--green)">📂 Restaurer mes données</button>
+    <button class="reset-btn" id="resetStats" style="margin-top:12px;border-color:#ff2200;color:#ff2200">✕ Remettre toutes les stats à zéro</button>
+  </div>
+</div>
+
+<!-- ══ COACH IA ══ -->
+<div class="tab-content" id="tab-coach">
+  <div class="coach-wrap">
+    <div class="coach-messages" id="coachMessages"></div>
+    <div class="coach-thinking" id="coachThinking">
+      <div class="coach-thinking-dots"><span></span><span></span><span></span></div>
+      <span style="font-family:'Roboto Condensed',sans-serif;font-size:12px;color:var(--muted)">En train de réfléchir...</span>
+    </div>
+    <div class="coach-toolbar">
+      <button class="coach-tool-btn" id="coachClearBtn">Effacer</button>
+      <button class="coach-tool-btn" id="coachApiKeyBtn">🔑 Clé API</button>
+    </div>
+    <div class="coach-api-panel" id="coachApiPanel">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:6px">CLÉE API ANTHROPIC</div>
+      <input type="password" class="coach-api-input" id="coachApiKeyInput" placeholder="sk-ant-...">
+      <input type="hidden" id="coachApiKey">
+      <button class="run-save-btn" id="coachApiSaveBtn" style="background:var(--accent);color:#000;font-size:12px;padding:10px">Sauvegarder</button>
+    </div>
+    <div class="coach-input-bar">
+      <textarea class="coach-input" id="coachInput" placeholder="Pose ta question au coach..." rows="1"></textarea>
+      <button class="coach-send-btn" id="coachSendBtn">↑</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HARDCORE FAIL ══ -->
+<div class="hardcore-overlay" id="hardcoreOverlay">
+  <div class="hc-icon">💀</div>
+  <div class="hc-title" id="hcTitle">T'as craqué.</div>
+  <div class="hc-sub" id="hcSub">Streak reset. Recommence depuis zéro.<br>La discipline se construit dans la douleur.</div>
+  <button class="hc-btn" onclick="closeHardcoreFail()">J'assume. On repart.</button>
+</div>
+
+<!-- ══ WEIGHT LOG MODAL ══ -->
+<div class="modal-overlay" id="weightModal">
+  <div class="modal-box weight-modal-box">
+    <div class="modal-icon">🏋️</div>
+    <div class="modal-title" id="weightModalTitle" style="font-size:20px"></div>
+    <div class="weight-modal-sets" id="weightModalSets"></div>
+    <div id="weightHistory"></div>
+    <div class="weight-inputs-row">
+      <div class="weight-input-group">
+        <div class="weight-input-label">Charge</div>
+        <div class="weight-input-unit-wrap">
+          <input type="number" id="weightKg" class="weight-input" placeholder="70" min="0" step="2.5" inputmode="decimal">
+          <span class="weight-input-unit">kg</span>
+        </div>
+      </div>
+      <div class="weight-input-group">
+        <div class="weight-input-label">Reps réelles</div>
+        <div class="weight-input-unit-wrap">
+          <input type="number" id="weightReps" class="weight-input" placeholder="8" min="1" step="1" inputmode="numeric">
+          <span class="weight-input-unit">reps</span>
+        </div>
+      </div>
+    </div>
+    <!-- Suggestion 1RM injectée par extras.js -->
+    <div id="weightSuggestion"></div>
+    <div class="modal-btns" style="margin-top:12px">
+      <button class="modal-btn cancel" id="weightModalCancel">Annuler</button>
+      <button class="modal-btn confirm" id="weightModalConfirm" style="background:var(--accent);color:#000">Logger ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RPE MODAL ══ -->
+<div class="rpe-overlay" id="rpeOverlay">
+  <div class="rpe-box">
+    <div class="rpe-title" id="rpeModalTitle">Post-séance</div>
+    <div class="rpe-sub">Comment tu te sens ? Ça prend 10 secondes.</div>
+    <div class="rpe-item">
+      <div class="rpe-item-header">
+        <span class="rpe-item-label">Énergie pendant la séance</span>
+        <span class="rpe-item-val" id="rpeEnergyVal">😐 3/5</span>
+      </div>
+      <input type="range" class="rpe-slider" id="rpeEnergy" min="1" max="5" value="3">
+    </div>
+    <div class="rpe-item">
+      <div class="rpe-item-header">
+        <span class="rpe-item-label">Qualité du sommeil la nuit d'avant</span>
+        <span class="rpe-item-val" id="rpeSleepVal">😐 3/5</span>
+      </div>
+      <input type="range" class="rpe-slider" id="rpeSleep" min="1" max="5" value="3">
+    </div>
+    <div class="rpe-item">
+      <div class="rpe-item-header">
+        <span class="rpe-item-label">Douleurs musculaires</span>
+        <span class="rpe-item-val" id="rpeSorenessVal">😬 3/5</span>
+      </div>
+      <input type="range" class="rpe-slider" id="rpeSoreness" min="1" max="5" value="3">
+    </div>
+    <div class="rpe-btns">
+      <button class="modal-btn cancel" id="rpeSkipBtn">Passer</button>
+      <button class="modal-btn confirm" id="rpeSaveBtn" style="background:var(--accent);color:#000">Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GOAL MODAL ══ -->
+<div class="goal-overlay" id="goalOverlay">
+  <div class="goal-modal-box">
+    <div class="goal-modal-title">Nouvel objectif</div>
+    <div id="goalTemplates"></div>
+    <div id="goalForm">
+      <div class="goal-form-title" id="goalFormTitle"></div>
+      <div class="goal-form-row">
+        <div class="goal-form-group">
+          <div class="goal-form-label">Nom</div>
+          <input type="text" class="goal-form-name" id="goalNameInput" placeholder="Mon objectif">
+        </div>
+      </div>
+      <div class="goal-form-row">
+        <div class="goal-form-group">
+          <div class="goal-form-label">Valeur actuelle</div>
+          <input type="number" class="goal-form-input" id="goalCurrentInput" placeholder="0" inputmode="decimal">
+        </div>
+        <div class="goal-form-group">
+          <div class="goal-form-label">Cible <span id="goalUnitLabel"></span></div>
+          <input type="number" class="goal-form-input" id="goalTargetInput" placeholder="100" inputmode="decimal">
+        </div>
+      </div>
+      <div class="goal-form-group" style="margin-bottom:12px">
+        <div class="goal-form-label">Date cible (optionnel)</div>
+        <input type="date" class="goal-form-date" id="goalDateInput">
+      </div>
+      <div class="modal-btns">
+        <button class="modal-btn cancel" id="goalModalClose">Annuler</button>
+        <button class="modal-btn confirm" id="goalSaveBtn" style="background:var(--run);color:#000">Créer l'objectif</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODALES EXISTANTES ══ -->
+<div class="modal-overlay" id="modalSkipOverlay">
+  <div class="modal-box">
+    <div class="modal-icon">😤</div>
+    <div class="modal-title" id="modalSkipTitle">Ah ouais t'es une zemel ?</div>
+    <div class="modal-sub" id="modalSkipSub">Tu skip une séance ? Bali va pas se payer tout seul frérot.</div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" id="modalSkipCancel">J'y retourne</button>
+      <button class="modal-btn confirm" id="modalSkipConfirm">On skip</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalCycleOverlay">
+  <div class="modal-box">
+    <div class="modal-icon">🔄</div>
+    <div class="modal-title">Redémarrer le cycle ?</div>
+    <div class="modal-sub">Redémarrer remet tous les exercices à zéro et reprend depuis J1 aujourd'hui.</div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" id="modalCycleCancel">Annuler</button>
+      <button class="modal-btn confirm" id="modalCycleConfirm">Oui, redémarrer</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">Tout remettre à zéro ?</div>
+    <div class="modal-sub">Cette action supprime le cycle, le défi, le streak, les charges et tout l'historique. Irréversible.</div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" id="modalCancel">Annuler</button>
+      <button class="modal-btn confirm" id="modalConfirm">Oui, tout reset</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalStatsOverlay">
+  <div class="modal-box">
+    <div class="modal-icon">📊</div>
+    <div class="modal-title">Effacer les stats ?</div>
+    <div class="modal-sub">L'historique, le streak et les totaux par exercice seront supprimés définitivement.</div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" id="modalStatsCancel">Annuler</button>
+      <button class="modal-btn confirm" id="modalStatsConfirm">Oui, effacer</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalRunsOverlay">
+  <div class="modal-box">
+    <div class="modal-icon">🏃</div>
+    <div class="modal-title">Effacer tous les runs ?</div>
+    <div class="modal-sub">Historique, records et stats running seront supprimés. Irréversible.</div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" id="modalRunsCancel">Annuler</button>
+      <button class="modal-btn confirm" id="modalRunsConfirm">Oui, effacer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NAV — 7 onglets ══ -->
+<nav class="bottom-nav" style="height:60px">
+  <button class="nav-btn active" id="btn-home"      onclick="switchTab('home')">     <span class="nav-icon">🏠</span>Home</button>
+  <button class="nav-btn"        id="btn-programme" onclick="switchTab('programme')"><span class="nav-icon">📋</span>Prog</button>
+  <button class="nav-btn"        id="btn-run"       onclick="switchTab('run')">      <span class="nav-icon">🏃</span>Run</button>
+  <button class="nav-btn"        id="btn-defi"      onclick="switchTab('defi')">     <span class="nav-icon">🔥</span>Défi</button>
+  <button class="nav-btn"        id="btn-body"      onclick="switchTab('body')">     <span class="nav-icon">⚖️</span>Body</button>
+  <button class="nav-btn"        id="btn-stats"     onclick="switchTab('stats')">    <span class="nav-icon">📊</span>Stats</button>
+  <button class="nav-btn"        id="btn-coach"     onclick="switchTab('coach')">    <span class="nav-icon">🤖</span>Coach</button>
+</nav>
+
+<!-- ══ LEVEL UP ══ -->
+<div class="levelup-overlay" id="levelUpOverlay">
+  <div class="levelup-box">
+    <div class="levelup-glow"></div>
+    <div class="levelup-label">⚡ Level Up</div>
+    <img class="levelup-img" id="levelUpImg" src="" alt="rank">
+    <div class="levelup-rank" id="levelUpRank">SOLDIER</div>
+    <div class="levelup-sub" id="levelUpSub">Tu passes au niveau supérieur.<br>Continue comme ça.</div>
+    <button class="levelup-btn" onclick="closeLevelUpModal()">Continuer 💪</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script src="extras.js"></script>
+
+<script>
+// Init PWA
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+// Init achievements count
+document.addEventListener('DOMContentLoaded', ()=>{
+  const el = document.getElementById('achTotal');
+  if(el) el.textContent = '17';
+});
+</script>
+</body>
+</html>
